@@ -1,0 +1,37 @@
+# 可选监控栈（按需启停）
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: clinic-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+    ports:
+      - "9090:9090"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - clinic-network
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: clinic-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - clinic-network
+
+networks:
+  clinic-network:
+    external: true
+    name: docker_clinic-network

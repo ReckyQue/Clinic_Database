@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build
+dist
+dist-ssr
+*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Database
+*.h2.db
+h2.mv.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage
+backend/target
+frontend/dist
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local-only / secrets (never push)
+docs/GITHUB_PUBLISH.md
+docs/deployment/INFO.md
+.skills/

@@ -1,0 +1,88 @@
+version: '3.8'
+
+# 生产部署：后端使用 MySQL（默认连宿主机 MySQL）
+# 启动前请先在宿主机创建库：CREATE DATABASE clinic DEFAULT CHARSET utf8mb4;
+# 本地开发不要用本文件跑库，本地直接 mvn + npm，默认 profile=dev 使用 H2。
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: clinic-redis
+    # Redis 上限 64MB，给应用留余量
+    command: redis-server --appendonly yes --maxmemory 64mb --maxmemory-policy allkeys-lru
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 96M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    volumes:
+      - redis-data:/data
+    networks:
+      - clinic-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: clinic-backend
+    ports:
+      - "9091:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # 宿主机 MySQL（容器内 localhost 不是宿主机，用 host.docker.internal）
+      DB_HOST: ${DB_HOST:-host.docker.internal}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-clinic}
+      DB_USER: ${DB_USER:-clinic}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      DB_SSL: ${DB_SSL:-false}
+      REDIS_HOST: redis
+      # 堆 384m；分层编译，冷启动更快
+      JAVA_OPTS: "-Xmx384m -Xms192m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 640M
+        reservations:
+          cpus: '0.3'
+          memory: 256M
+    networks:
+      - clinic-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: clinic-frontend
+    ports:
+      - "9090:80"
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 96M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    networks:
+      - clinic-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+
+networks:
+  clinic-network:
+    driver: bridge

@@ -1,0 +1,13 @@
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+COPY backend/pom.xml .
+COPY backend/src ./src
+RUN mvn -q -DskipTests clean package
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8081
+ENV JAVA_OPTS="-Xmx384m -Xms192m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m"
+ENV SPRING_PROFILES_ACTIVE=prod
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

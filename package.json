@@ -1,0 +1,15 @@
+{
+  "name": "clinic",
+  "private": true,
+  "version": "1.0.0",
+  "description": "乡村慢性病管理系统 · 工程化入口（hooks/commitlint 在 frontend）",
+  "scripts": {
+    "prepare": "npm --prefix frontend run prepare",
+    "cz": "npm --prefix frontend run cz",
+    "commit": "npm --prefix frontend run commit",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "test:frontend": "npm --prefix frontend run test:run",
+    "test:backend": "mvn -f backend/pom.xml test",
+    "verify:backend": "mvn -f backend/pom.xml verify"
+  }
+}

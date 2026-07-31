@@ -1,0 +1,32 @@
+spring:
+  cache:
+    type: simple
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    open-in-view: false
+
+chaos:
+  fault-injection:
+    enabled: true
+    max-delay-ms: 2000
+
+logging:
+  level:
+    com.sjk.clinic: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
